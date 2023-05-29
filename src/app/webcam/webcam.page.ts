@@ -36,7 +36,6 @@ export class WebcamPage implements OnInit {
   selectedResolution1: string;
   selectedResolution2: string;
 
-
   images: {
     imageW: number,
     imageH: number,
@@ -59,7 +58,6 @@ export class WebcamPage implements OnInit {
   height1: number;
   width2: number;
   height2: number;
-  i: number = 3;
 
   async ngOnInit() {
     // this.getmediaDevices();
@@ -239,10 +237,11 @@ export class WebcamPage implements OnInit {
     }
   }
   onSelect1(value: string) {
+    this.selectedValue1 = value;
     if (value != "0") {
       this.closeCamera1();
       console.log(this.selectedValue1);
-      const stream = this.openCamera(value, this.width1, this.height1);
+      const stream = this.openCamera(this.selectedValue1, this.width1, this.height1);
       stream.then(stream => {
         console.log('Got MediaStream:', stream);
         this.video1.nativeElement.srcObject = stream;
@@ -258,10 +257,11 @@ export class WebcamPage implements OnInit {
     }  
   }
   onSelect2(value: string) {
+    this.selectedValue2 = value;
     if (value != "0") {
       this.closeCamera2();
       console.log(this.selectedValue2);
-      const stream = this.openCamera(value, this.width2, this.height2);
+      const stream = this.openCamera(this.selectedValue2, this.width2, this.height2);
       stream.then(stream => {
         console.log('Got MediaStream:', stream);
         this.video2.nativeElement.srcObject = stream;
@@ -275,7 +275,6 @@ export class WebcamPage implements OnInit {
       this.closeCamera2();
     }
   }
-
   public capture1() {
     const context = this.canvas1.nativeElement.getContext('2d');
     if (context) {
@@ -298,7 +297,6 @@ export class WebcamPage implements OnInit {
       console.error('Canvas context is null.');
     }
   }
-
   public capture2() {
     const context = this.canvas2.nativeElement.getContext('2d');
     if (context) {
