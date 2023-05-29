@@ -1,0 +1,53 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>webcam</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div #liveLiew style="margin: 10px;">
+    <video #video id="video" width="100%"></video>
+  </div>
+  <div #liveLiew style="margin: 10px;width: 50%;">
+    <video #video2 id="video" width="100%"></video>
+  </div>
+  <div style="margin: 10px;">Resolution : {{res}}
+    <select name="Resolution" style="max-width: 100%; " class="select" [(ngModel)]="selectedResolution"
+      (change)="onSelectedResolution(selectedResolution)">
+      <option value = "1">640x360</option>
+      <option value = "2">640x480</option>
+      <option value = "3">800x600</option>
+      <option value = "4">1280x720</option>
+      <option value = "5">1920x1080</option>
+    </select>
+  </div>
+  <div>
+    <ion-grid fixed>
+      <ion-row>
+        <ion-col size="4">select camera :</ion-col>
+        <ion-col size="8">
+          <select name="cam" style="max-width: 100%; " class="select" [(ngModel)]="selectedValue"
+            (change)="onSelect(selectedValue)">
+            <option value="0">closeCamera</option>
+            <option [value]="device.deviceID" *ngFor="let device of devices">{{device.deviceName}}</option>
+          </select></ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+  <div style="margin: 10px;">
+    <ion-button style="align-items: center;" (click)="capture();">take pictures</ion-button>
+    <ion-button style="align-items: center;" (click)="iplus();">next Resolution</ion-button>
+    <ion-button style="align-items: center;" (click)="closeCamera();">Close</ion-button>
+  </div>
+  <div style="margin: 10px;">
+    <canvas #canvas id="canvas"></canvas>
+  </div>
+  <div style="align-items: center;margin: 10px;">
+    <div style="margin-left: 20px;margin-bottom : 20px; width: 40%; float: left;text-align: center;"
+      *ngFor="let image of images">
+      <img src="{{ image.imageC }}" style="width: 100%;"><br>
+      <span>{{image.imageW}}x{{image.imageH}} type {{image.imageT}}</span>
+    </div>
+  </div>
+
+</ion-content>
