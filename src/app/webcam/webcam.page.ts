@@ -42,13 +42,44 @@ export class WebcamPage implements OnInit {
     imageC: string,
     imageT: string
   }[] = [];
-
-  deviceIDs: string[] = [];
-  deviceNames: string[] = [];
-  devices: { deviceID: string, deviceName: string }[] = [];
+  deviceIDs: string[]=[];
+  deviceNames :string[]=[];
+  deviceIDsF: string;
+  deviceNamesF: string;
+  deviceIDsB: string;
+  deviceNamesB: string;
+  devices: { deviceID: string, deviceName: string }[] = [
+    // {
+    //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
+    //   deviceName: "camera2 1, facing front"
+    // },
+    // {
+    //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
+    //   deviceName: "camera2 3, facing front"
+    // },
+    // {
+    //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
+    //   deviceName: "camera2 5, facing back"
+    // },
+    // {
+    //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
+    //   deviceName: "camera2 4, facing back"
+    // },
+    // {
+    //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
+    //   deviceName: "camera2 2, facing back"
+    // },
+    // {
+    //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
+    //   deviceName: "camera2 0, facing back"
+    // }
+  ];
   selectedValue1: string;
   selectedValue2: string;
-
+  compareWith1: any;
+  compareWith2: any;
+  compareWith3: any;
+  compareWith4: any;
   captures: string[] = [];
   showResolutionWidth: number[] = [];
   showResolutionheight: number[] = [];
@@ -59,6 +90,74 @@ export class WebcamPage implements OnInit {
   width2: number;
   height2: number;
 
+  cameraindexfront: number;
+  indexCameraF: number = 10;
+  indexCameraB: number = 10;
+  myFrontCamera: any[] = [];
+  myBackCamera: any[] = [];
+  searchfront: string = "front";
+  searchback: string = "back";
+  // dname: string[] = ["camera2 1, facing front",
+  //   "camera2 3, facing front",
+  //   "camera2 5, facing back",
+  //   "camera2 4, facing back",
+  //   "camera2 2, facing back",
+  //  "camera2 0, facing back"]
+
+    frontCamera(value:string){
+      this.closeCamera1();
+      console.log(value);
+      if (value != "0") {
+        this.closeCamera1();
+        const stream = this.openCamera(value, this.width1, this.height1);
+        stream.then(stream => {
+          this.video1.nativeElement.srcObject = stream;
+          this.video1.nativeElement.play();
+          console.log(this.deviceNamesF)
+        })
+          .catch(error => {
+            console.error('Error accessing media devices.', error);
+          });
+      } else {
+        this.closeCamera1();
+      }
+    }
+    backCamera(value:string){
+      this.closeCamera1();
+      console.log(value);
+      if (value != "0") {
+        this.closeCamera1();
+        const stream = this.openCamera(value, this.width1, this.height1);
+        stream.then(stream => {
+          this.video1.nativeElement.srcObject = stream;
+          this.video1.nativeElement.play();
+          console.log(this.deviceNamesB);
+        })
+          .catch(error => {
+            console.error('Error accessing media devices.', error);
+          });
+      } else {
+        this.closeCamera1();
+      }
+    }
+  Split() {
+    // console.log(this.devices);
+    // for (let index of this.devices) {
+    //   console.log(index.deviceName);
+    //   const myArray = index.deviceName.split(",");
+    //   const camerafront = myArray.filter((camera) => {
+    //     const cameraName = camera.toLowerCase();
+    //     const searchCamera = this.searchfront.toLowerCase();
+    //     return cameraName.indexOf(searchCamera) !== -1;
+    //   })
+    //   console.log(camerafront);
+    //   for (let index of camerafront) {
+    //     const myArray = index.split(",");
+    //     this.myFrontCamera.push(myArray[0]);
+    //   }
+    //   console.log(this.myFrontCamera);
+    // }
+  }
   async ngOnInit() {
     // this.getmediaDevices();
     this.Resolution();
@@ -80,7 +179,7 @@ export class WebcamPage implements OnInit {
       this.res1 = this.testRes[3];
     }
     if (this.selectedResolution1 == "5") {
-      this.res1= this.testRes[5];
+      this.res1 = this.testRes[5];
     }
     if (this.selectedResolution2 == "1") {
       this.res2 = this.testRes[0];
@@ -154,17 +253,43 @@ export class WebcamPage implements OnInit {
       this.height2 = 360;
     }
     console.log(this.width1 + "x" + this.height1);
-    console.log(this.width2+ "x" + this.height2);
+    console.log(this.width2 + "x" + this.height2);
   }
-  onSelectedResolution1(value: string) {
-    this.selectedResolution1 = value;
+  onSelectedResolution1(ev: any) {
+    this.closeCamera1();
+    this.selectedResolution1 = ev.target.value;
     this.Resolution();
-    this.onSelect1(this.selectedValue1)
+    if (ev.target.valuex != "0") {
+      this.closeCamera1();
+      const stream = this.openCamera(this.selectedValue1, this.width1, this.height1);
+      stream.then(stream => {
+        this.video1.nativeElement.srcObject = stream;
+        this.video1.nativeElement.play();
+      })
+        .catch(error => {
+          console.error('Error accessing media devices.', error);
+        });
+    } else {
+      this.closeCamera1();
+    }
   }
-  onSelectedResolution2(value: string) {
-    this.selectedResolution2 = value;
+  onSelectedResolution2(ev: any) {
+    this.closeCamera2();
+    this.selectedResolution2 = ev.target.value;
     this.Resolution();
-    this.onSelect2(this.selectedValue2)
+    if (ev.target.value != "0") {
+      this.closeCamera2();
+      const stream = this.openCamera(this.selectedValue2, this.width2, this.height2);
+      stream.then(stream => {
+        this.video2.nativeElement.srcObject = stream;
+        this.video2.nativeElement.play();
+      })
+        .catch(error => {
+          console.error('Error accessing media devices.', error);
+        });
+    } else {
+      this.closeCamera2();
+    }
   }
   async getConnectedDevices(type: any) {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -175,8 +300,30 @@ export class WebcamPage implements OnInit {
     if (cameras.length === 0) {
       console.log('No cameras found');
     } else {
-      console.log('Available cameras:', cameras);
       cameras.forEach((camera) => {
+        const CameraName = camera.label.toLowerCase();
+        if (CameraName.indexOf(this.searchfront) !== -1) {
+          const myArray = CameraName.split(",");
+          const cameraindex = myArray[0].split(" ");
+          this.cameraindexfront = Number.parseInt(cameraindex[1]);
+          if (this.cameraindexfront < this.indexCameraF) {
+            this.indexCameraF = this.cameraindexfront;
+            console.log(this.indexCameraF);
+            this.deviceIDsF = camera.deviceId;
+            this.deviceNamesF = camera.label;
+          }
+        }
+        if (CameraName.indexOf(this.searchback) !== -1) {
+          const myArray = CameraName.split(",");
+          const cameraindex = myArray[0].split(" ");
+          this.cameraindexfront = Number.parseInt(cameraindex[1]);
+          if (this.cameraindexfront < this.indexCameraB) {
+            this.indexCameraB = this.cameraindexfront;
+            console.log(this.indexCameraB);
+            this.deviceIDsB = camera.deviceId;
+            this.deviceNamesB = camera.label;
+          }
+        }
         this.deviceIDs.push(camera.deviceId);
         this.deviceNames.push(camera.label);
         this.devices = this.deviceIDs.map((deviceID, index) => (
@@ -184,7 +331,6 @@ export class WebcamPage implements OnInit {
             deviceID,
             deviceName: this.deviceNames[index]
           }));
-        console.log('Available cameras:', this.devices);
       })
     }
   }
@@ -201,15 +347,17 @@ export class WebcamPage implements OnInit {
   async setCamera() {
     const cameras = await this.getConnectedDevices('videoinput');
     if (cameras && cameras.length > 0) {
+      this.selectedValue1 = cameras[0].deviceId;
+      this.selectedValue2 = cameras[0].deviceId;
       const stream = this.openCamera(cameras[0].deviceId, this.width1, this.height1);
       stream.then(stream => {
-        console.log('Got MediaStream:', stream);
         this.video1.nativeElement.srcObject = stream;
         this.video2.nativeElement.srcObject = stream;
         this.video1.nativeElement.play();
         this.video2.nativeElement.play();
-        console.log(this.video1);
-        console.log(this.video2);
+        if (cameras[0].deviceId) {
+          this.video1.nativeElement.setAttribute("class", "flip");
+        }
       })
         .catch(error => {
           console.error('Error accessing media devices.', error);
@@ -236,37 +384,30 @@ export class WebcamPage implements OnInit {
       videoElement.srcObject = null;
     }
   }
-  onSelect1(value: string) {
-    this.selectedValue1 = value;
-    if (value != "0") {
+  onSelect1(ev: any) {
+    this.selectedValue1 = ev.target.value;
+    if (ev.target.value != "0") {
       this.closeCamera1();
-      console.log(this.selectedValue1);
       const stream = this.openCamera(this.selectedValue1, this.width1, this.height1);
       stream.then(stream => {
-        console.log('Got MediaStream:', stream);
         this.video1.nativeElement.srcObject = stream;
-        console.log('Got currentTime:', this.video1.nativeElement.currentTime);
         this.video1.nativeElement.play();
-        console.log(this.video1);
       })
         .catch(error => {
           console.error('Error accessing media devices.', error);
         });
     } else {
       this.closeCamera1();
-    }  
+    }
   }
-  onSelect2(value: string) {
-    this.selectedValue2 = value;
-    if (value != "0") {
+  onSelect2(ev: any) {
+    this.selectedValue2 = ev.target.value;
+    if (ev.target.value != "0") {
       this.closeCamera2();
-      console.log(this.selectedValue2);
       const stream = this.openCamera(this.selectedValue2, this.width2, this.height2);
       stream.then(stream => {
-        console.log('Got MediaStream:', stream);
         this.video2.nativeElement.srcObject = stream;
         this.video2.nativeElement.play();
-        console.log(this.video2);
       })
         .catch(error => {
           console.error('Error accessing media devices.', error);
@@ -282,7 +423,7 @@ export class WebcamPage implements OnInit {
       this.canvas1.nativeElement.width = video1.videoWidth;
       this.canvas1.nativeElement.height = video1.videoHeight;
       context.drawImage(this.video1.nativeElement, 0, 0, video1.videoWidth, video1.videoHeight);
-      const capturedImage = this.canvas1.nativeElement.toDataURL('image/jpeg');
+      const capturedImage = this.canvas1.nativeElement.toDataURL('image/jpg');
       this.captures.push(capturedImage);
       this.showResolutionWidth.push(this.canvas1.nativeElement.width);
       this.showResolutionheight.push(this.canvas1.nativeElement.height);
@@ -297,6 +438,13 @@ export class WebcamPage implements OnInit {
       console.error('Canvas context is null.');
     }
   }
+  saveImage(capturedImage: string) {
+    const createEl = document.createElement('a');
+    createEl.href = capturedImage;
+    createEl.download = "download.jpg";
+    createEl.click();
+    createEl.remove();
+  }
   public capture2() {
     const context = this.canvas2.nativeElement.getContext('2d');
     if (context) {
@@ -304,7 +452,7 @@ export class WebcamPage implements OnInit {
       this.canvas2.nativeElement.width = video2.videoWidth;
       this.canvas2.nativeElement.height = video2.videoHeight;
       context.drawImage(this.video2.nativeElement, 0, 0, video2.videoWidth, video2.videoHeight);
-      const capturedImage = this.canvas2.nativeElement.toDataURL('image/jpeg');
+      const capturedImage = this.canvas2.nativeElement.toDataURL('image/jpg');
       this.captures.push(capturedImage);
       this.showResolutionWidth.push(this.canvas2.nativeElement.width);
       this.showResolutionheight.push(this.canvas2.nativeElement.height);

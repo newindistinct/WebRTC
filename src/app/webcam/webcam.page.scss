@@ -5,5 +5,9 @@
 
 #video {
   background-color: transparent;
+  // transform: scaleX(-1);
 }
-
+.flip {
+  background-color: transparent;
+  transform: scaleX(-1);
+}

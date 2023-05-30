@@ -11,39 +11,92 @@
   <div #liveLiew style="margin: 10px;width: 50%;">
     <video #video2 id="video" width="100%"></video>
   </div>
+  <ion-button (click)="frontCamera(deviceIDsF)" expand="block" fill="clear" shape="round">front</ion-button>
+  <ion-button (click)="backCamera(deviceIDsB)" expand="block" fill="clear" shape="round">back</ion-button>
+  <ion-button (click)="closeCamera1()" expand="block" fill="clear" shape="round">stop</ion-button>
   <div style="margin: 10px;">Resolution Camera 1: {{res1}}
-    <select name="CameraResolution1" style="max-width: 100%; " class="select" [(ngModel)]="selectedResolution1"
+    <ion-list>
+      <ion-item>
+        <ion-select [compareWith]="compareWith1" placeholder="Select Resolution Camera 1"
+          interface="action-sheet" (ionChange)="onSelectedResolution1($event)">
+          <ion-select-option value="1">480x360</ion-select-option>
+          <ion-select-option value="2">640x480</ion-select-option>
+          <ion-select-option value="3">800x600</ion-select-option>
+          <ion-select-option value="4">1280x720</ion-select-option>
+          <ion-select-option value="5">1920x1080</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+    <!-- <select name="CameraResolution1" style="max-width: 100%; " class="select" [(ngModel)]="selectedResolution1"
       (change)="onSelectedResolution1(selectedResolution1)">
       <option value="1">480x360</option>
       <option value="2">640x480</option>
       <option value="3">800x600</option>
       <option value="4" selected>1280x720</option>
       <option value="5">1920x1080</option>
-    </select>
+    </select> -->
   </div>
   <div style="margin: 10px;">Resolution Camera 2: {{res2}}
-    <select name="CameraResolution2" style="max-width: 100%; " class="select" [(ngModel)]="selectedResolution2"
+    <ion-list>
+      <ion-item>
+        <ion-select [compareWith]="compareWith2" placeholder="Select Resolution Camera 2"
+          interface="action-sheet" (ionChange)="onSelectedResolution2($event)">
+          <ion-select-option value="1">480x360</ion-select-option>
+          <ion-select-option value="2">640x480</ion-select-option>
+          <ion-select-option value="3">800x600</ion-select-option>
+          <ion-select-option value="4">1280x720</ion-select-option>
+          <ion-select-option value="5">1920x1080</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+    <!-- <select name="CameraResolution2" style="max-width: 100%; " class="select" [(ngModel)]="selectedResolution2"
       (change)="onSelectedResolution2(selectedResolution2)">
       <option value="1">480x360</option>
       <option value="2">640x480</option>
       <option value="3">800x600</option>
       <option value="4" selected>1280x720</option>
       <option value="5">1920x1080</option>
-    </select>
+    </select> -->
   </div>
   <div style="margin: 10px;">Select Camera 1:
-    <select name="Camera1" style="max-width: 100%; " class="select" [(ngModel)]="selectedValue1"
+    <ion-list>
+      <ion-item>
+        <ion-select [compareWith]="compareWith3" placeholder="Select Camera 1" interface="action-sheet"
+          (ionChange)="onSelect1($event)">
+          <ion-select-option value="0">closeCamera</ion-select-option>
+          <ion-select-option [value]="device.deviceID" *ngFor="let device of devices">
+            {{device.deviceName}}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+    <!-- <select name="Camera1" style="max-width: 100%; " class="select" [(ngModel)]="selectedValue1"
       (change)="onSelect1(selectedValue1)">
       <option value="0">closeCamera</option>
       <option [value]="device.deviceID" *ngFor="let device of devices">{{device.deviceName}}</option>
-    </select>
+    </select> -->
   </div>
   <div style="margin: 10px;">Select Camera 2:
-    <select name="Camera2" style="max-width: 100%; " class="select" [(ngModel)]="selectedValue2"
+    <ion-list>
+      <ion-item>
+        <ion-select [compareWith]="compareWith4" placeholder="Select Camera 2" interface="action-sheet"
+          (ionChange)="onSelect2($event)">
+          <ion-select-option value="0">closeCamera</ion-select-option>
+          <ion-select-option [value]="device.deviceID" *ngFor="let device of devices">
+            {{device.deviceName}}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+    <!-- <select name="Camera2" style="max-width: 100%; " class="select" [(ngModel)]="selectedValue2"
       (change)="onSelect2(selectedValue2)">
       <option value="0">closeCamera</option>
       <option [value]="device.deviceID" *ngFor="let device of devices">{{device.deviceName}}</option>
-    </select>
+    </select> -->
+  </div>
+  <div style="margin: 10px;">
+    <ion-label>Capture Resolution Camera 1 : {{width1}}x{{height1}}</ion-label><br>
+    <ion-label>Capture Resolution Camera 2 : {{width2}}x{{height2}}</ion-label>
   </div>
   <div style="margin: 10px;">
     <ion-button style="align-items: center;" (click)="capture1();">take pictures 1</ion-button>
@@ -62,6 +115,9 @@
       *ngFor="let image of images">
       <img src="{{ image.imageC }}" style="width: 100%;"><br>
       <span>{{image.imageW}}x{{image.imageH}} {{image.imageT}}</span>
+      <ion-button (click)="saveImage(image.imageC)" expand="block" fill="clear" shape="round">
+        Save Image
+      </ion-button>
     </div>
   </div>
 
