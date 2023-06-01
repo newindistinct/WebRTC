@@ -103,6 +103,7 @@ export class WebcamPage implements OnInit {
   //   "camera2 4, facing back",
   //   "camera2 2, facing back",
   //  "camera2 0, facing back"]
+  status: string;
   quickScan = [
     {
       "label": "4K(UHD)",
@@ -145,30 +146,6 @@ export class WebcamPage implements OnInit {
       "width": 640,
       "height": 360,
       "ratio": "16:9"
-    },
-    {
-      "label": "CIF",
-      "width": 352,
-      "height": 288,
-      "ratio": "4:3"
-    },
-    {
-      "label": "QVGA",
-      "width": 320,
-      "height": 240,
-      "ratio": "4:3"
-    },
-    {
-      "label": "QCIF",
-      "width": 176,
-      "height": 144,
-      "ratio": "4:3"
-    },
-    {
-      "label": "QQVGA",
-      "width": 160,
-      "height": 120,
-      "ratio": "4:3"
     }
 
   ];
@@ -208,54 +185,14 @@ export class WebcamPage implements OnInit {
       this.closeCamera1();
     }
   }
-  countRes: number = 0;
-  QuickScan() {
-    if (this.countRes < this.quickScan.length) {
-      this.height1 = this.quickScan[this.countRes].height;
-      this.width1 = this.quickScan[this.countRes].width;
-      this.countRes++;
-      console.log(this.height1);
-      console.log(this.width1);
-      this.openCameraTest();
-      // const video = this.video1.nativeElement;
-      // console.log(video.videoHeight+"x"+video.videoWidth);
-      console.log(this.countRes);
-    }
-  }
-  
-  async setCameratest(cameraId: any, minWidth: any, minHeight: any) {
-    const constraints = {
-      'video': {
-        'deviceId': cameraId,
-        'width': { 'exact': minWidth },    //new syntax
-        'height': { 'exact': minHeight }   //new syntax
-      }
-    }
-    return await navigator.mediaDevices.getUserMedia(constraints);
-  }
-  async openCameraTest() {
-    this.closeCamera1();
-    const stream = this.setCameratest(this.deviceIDs, this.width1, this.height1);
-    await stream.then(stream => {
-      this.video1.nativeElement.srcObject = stream;
-      this.video1.nativeElement.play();
-    })
-      .catch(error => {
-        console.error('Error accessing media devices.', error);
-      });
-  }
-
-
-
-
-
-
 
   async ngOnInit() {
     // this.getmediaDevices();
     this.Resolution();
     this.checkCamera();
+
     this.setCamera();
+
     // this.initializefaceDetector();
   }
   Resolution() {
@@ -424,7 +361,9 @@ export class WebcamPage implements OnInit {
             deviceID,
             deviceName: this.deviceNames[index]
           }));
-      })
+        this.selectDevice();
+      }
+      )
     }
   }
   async openCamera(cameraId: any, minWidth: any, minHeight: any) {
@@ -448,9 +387,9 @@ export class WebcamPage implements OnInit {
         this.video2.nativeElement.srcObject = stream;
         this.video1.nativeElement.play();
         this.video2.nativeElement.play();
-        if (cameras[0].deviceId) {
-          this.video1.nativeElement.setAttribute("class", "flip");
-        }
+        // if (cameras[0].deviceId) {
+        //   // this.video1.nativeElement.setAttribute("class", "flip");
+        // }
       })
         .catch(error => {
           console.error('Error accessing media devices.', error);
@@ -560,5 +499,139 @@ export class WebcamPage implements OnInit {
       console.error('Canvas context is null.');
     }
   }
+  DeviceArray: string[] = [];
+  d: number = 0;
+  selectDevice() {
+    this.devices.forEach((device) => {
+      this.DeviceArray.push(device.deviceID);
+    })
+  }
+
+  scan() {
+    this.click(this.DeviceArray[this.d]);
+  }
+
+  stream: any;
+  i: number = 0;
+  click(device: string) {
+    if (this.i < this.quickScan.length) {
+      this.gum(this.quickScan[this.i], device);
+      this.displayVideoDimensions();
+    }
+  }
+  gum(candidate: any, device: any) {
+    console.log("trying " + candidate.label + " on " + device);
+    console.log("trying " + candidate.width + " x " + candidate.height);
+
+    const videoElement = this.video1.nativeElement;
+    const stream = videoElement.srcObject as MediaStream;
+
+    if (stream) {
+      const tracks = stream.getTracks();
+      tracks.forEach((track) => track.stop());
+      videoElement.srcObject = null;
+    }
+
+    //create constraints object
+    let constraints = {
+      video: {
+        'deviceId': { 'exact': device },
+        'width': { 'min': 640, 'ideal': candidate.width, 'max': 3840 },
+        'height': { 'min': 360, 'ideal': candidate.height, 'max': 2160 }
+      }
+    };
+
+    setTimeout(() => {
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then((Stream) => {
+          this.stream = Stream;
+          this.video1.nativeElement.srcObject = Stream;
+          this.video1.nativeElement.play()
+        })
+        .catch(error => {
+          console.error('Error accessing media devices.', error);
+          this.status = "fail: " + error;
+          console.log(this.status);
+          this.i++
+        });
+    },
+      (this.stream ? 200 : 0));  //official examples had this at 200
+
+  }
+  displayVideoDimensions() {
+    console.log('creating...');
+    if (!this.video1.nativeElement.videoWidth) {
+      setTimeout(() => {
+        this.displayVideoDimensions();
+      }, 500);
+    }
+    console.log(this.video1.nativeElement.videoWidth, this.video1.nativeElement.videoHeight);
+    console.log(this.quickScan[this.i].width, this.quickScan[this.i].height);
+    if (this.video1.nativeElement.videoWidth * this.video1.nativeElement.videoHeight > 0) {
+      if (this.quickScan[this.i].width + "x" + this.quickScan[this.i].height !== this.video1.nativeElement.videoWidth + "x" + this.video1.nativeElement.videoHeight) {
+        this.status = "fail: mismatch";
+        this.i++;
+        if (this.i < this.quickScan.length) {
+          setTimeout(() => {
+            this.scan();
+          }, 500);
+        }
+        else {
+          this.i = 0;
+          this.d++;
+          if (this.d < this.DeviceArray.length) {
+            setTimeout(() => {
+              this.scan();
+            }, 500);
+
+          } else {
+            this.d = 0;
+          }
+        }
+      }
+      else {
+        this.status = "pass";
+        this.i++;
+        if (this.i < this.quickScan.length) {
+          setTimeout(() => {
+            this.scan();
+          }, 500);
+        }
+        else {
+          this.i = 0;
+          this.d++;
+          if (this.d < this.DeviceArray.length) {
+            setTimeout(() => {
+              this.scan();
+            }, 500);
+          }
+          else {
+            this.d = 0;
+          }
+        }
+      }
+      console.log(this.status);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
