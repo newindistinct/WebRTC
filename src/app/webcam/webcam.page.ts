@@ -42,8 +42,7 @@ export class WebcamPage implements OnInit {
     imageC: string,
     imageT: string
   }[] = [];
-  deviceIDs: string[]=[];
-  deviceNames :string[]=[];
+
   deviceIDsF: string;
   deviceNamesF: string;
   deviceIDsB: string;
@@ -73,7 +72,8 @@ export class WebcamPage implements OnInit {
     //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
     //   deviceName: "camera2 0, facing back"
     // }
-  ];
+  ]; deviceIDs: string[] = [];
+  deviceNames: string[] = [];
   selectedValue1: string;
   selectedValue2: string;
   compareWith1: any;
@@ -103,61 +103,154 @@ export class WebcamPage implements OnInit {
   //   "camera2 4, facing back",
   //   "camera2 2, facing back",
   //  "camera2 0, facing back"]
+  quickScan = [
+    {
+      "label": "4K(UHD)",
+      "width": 3840,
+      "height": 2160,
+      "ratio": "16:9"
+    },
+    {
+      "label": "1080p(FHD)",
+      "width": 1920,
+      "height": 1080,
+      "ratio": "16:9"
+    },
+    {
+      "label": "UXGA",
+      "width": 1600,
+      "height": 1200,
+      "ratio": "4:3"
+    },
+    {
+      "label": "720p(HD)",
+      "width": 1280,
+      "height": 720,
+      "ratio": "16:9"
+    },
+    {
+      "label": "SVGA",
+      "width": 800,
+      "height": 600,
+      "ratio": "4:3"
+    },
+    {
+      "label": "VGA",
+      "width": 640,
+      "height": 480,
+      "ratio": "4:3"
+    },
+    {
+      "label": "360p(nHD)",
+      "width": 640,
+      "height": 360,
+      "ratio": "16:9"
+    },
+    {
+      "label": "CIF",
+      "width": 352,
+      "height": 288,
+      "ratio": "4:3"
+    },
+    {
+      "label": "QVGA",
+      "width": 320,
+      "height": 240,
+      "ratio": "4:3"
+    },
+    {
+      "label": "QCIF",
+      "width": 176,
+      "height": 144,
+      "ratio": "4:3"
+    },
+    {
+      "label": "QQVGA",
+      "width": 160,
+      "height": 120,
+      "ratio": "4:3"
+    }
 
-    frontCamera(value:string){
+  ];
+  frontCamera(value: string) {
+    this.closeCamera1();
+    console.log(value);
+    if (value != "0") {
       this.closeCamera1();
-      console.log(value);
-      if (value != "0") {
-        this.closeCamera1();
-        const stream = this.openCamera(value, this.width1, this.height1);
-        stream.then(stream => {
-          this.video1.nativeElement.srcObject = stream;
-          this.video1.nativeElement.play();
-          console.log(this.deviceNamesF)
-        })
-          .catch(error => {
-            console.error('Error accessing media devices.', error);
-          });
-      } else {
-        this.closeCamera1();
-      }
-    }
-    backCamera(value:string){
+      const stream = this.openCamera(value, this.width1, this.height1);
+      stream.then(stream => {
+        this.video1.nativeElement.srcObject = stream;
+        this.video1.nativeElement.play();
+        console.log(this.deviceNamesF)
+      })
+        .catch(error => {
+          console.error('Error accessing media devices.', error);
+        });
+    } else {
       this.closeCamera1();
-      console.log(value);
-      if (value != "0") {
-        this.closeCamera1();
-        const stream = this.openCamera(value, this.width1, this.height1);
-        stream.then(stream => {
-          this.video1.nativeElement.srcObject = stream;
-          this.video1.nativeElement.play();
-          console.log(this.deviceNamesB);
-        })
-          .catch(error => {
-            console.error('Error accessing media devices.', error);
-          });
-      } else {
-        this.closeCamera1();
-      }
     }
-  Split() {
-    // console.log(this.devices);
-    // for (let index of this.devices) {
-    //   console.log(index.deviceName);
-    //   const myArray = index.deviceName.split(",");
-    //   const camerafront = myArray.filter((camera) => {
-    //     const cameraName = camera.toLowerCase();
-    //     const searchCamera = this.searchfront.toLowerCase();
-    //     return cameraName.indexOf(searchCamera) !== -1;
-    //   })
-    //   console.log(camerafront);
-    //   for (let index of camerafront) {
-    //     const myArray = index.split(",");
-    //     this.myFrontCamera.push(myArray[0]);
-    //   }
-    //   console.log(this.myFrontCamera);
-    // }
   }
+  backCamera(value: string) {
+    this.closeCamera1();
+    console.log(value);
+    if (value != "0") {
+      this.closeCamera1();
+      const stream = this.openCamera(value, this.width1, this.height1);
+      stream.then(stream => {
+        this.video1.nativeElement.srcObject = stream;
+        this.video1.nativeElement.play();
+        console.log(this.deviceNamesB);
+      })
+        .catch(error => {
+          console.error('Error accessing media devices.', error);
+        });
+    } else {
+      this.closeCamera1();
+    }
+  }
+  countRes: number = 0;
+  QuickScan() {
+    if (this.countRes < this.quickScan.length) {
+      this.height1 = this.quickScan[this.countRes].height;
+      this.width1 = this.quickScan[this.countRes].width;
+      this.countRes++;
+      console.log(this.height1);
+      console.log(this.width1);
+      this.openCameraTest();
+      // const video = this.video1.nativeElement;
+      // console.log(video.videoHeight+"x"+video.videoWidth);
+      console.log(this.countRes);
+    }
+  }
+  
+  async setCameratest(cameraId: any, minWidth: any, minHeight: any) {
+    const constraints = {
+      'video': {
+        'deviceId': cameraId,
+        'width': { 'exact': minWidth },    //new syntax
+        'height': { 'exact': minHeight }   //new syntax
+      }
+    }
+    return await navigator.mediaDevices.getUserMedia(constraints);
+  }
+  async openCameraTest() {
+    this.closeCamera1();
+    const stream = this.setCameratest(this.deviceIDs, this.width1, this.height1);
+    await stream.then(stream => {
+      this.video1.nativeElement.srcObject = stream;
+      this.video1.nativeElement.play();
+    })
+      .catch(error => {
+        console.error('Error accessing media devices.', error);
+      });
+  }
+
+
+
+
+
+
+
   async ngOnInit() {
     // this.getmediaDevices();
     this.Resolution();
