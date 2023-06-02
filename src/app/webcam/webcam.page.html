@@ -14,21 +14,26 @@
   <ion-button (click)="frontCamera(deviceIDsF)" expand="block" fill="clear" shape="round">front</ion-button>
   <ion-button (click)="backCamera(deviceIDsB)" expand="block" fill="clear" shape="round">back</ion-button>
   <ion-button (click)="scan()" expand="block" fill="clear" shape="round">scan</ion-button>
-  <div style="margin: 10px;">Resolution Camera 1: {{res1}}
+  <div style="margin: 10px;" *ngFor="let device of DeviceCanUse">Resolution Camera 1: {{device.deviceId}}
+    <ion-list>
+      <ion-item>
+        <ion-select [compareWith]="compareWith1" placeholder="Select Resolution Camera 1"
+          interface="action-sheet" (ionChange)="onSelectCamera($event)">
+          <ion-select-option [value]="res.width" *ngFor="let res of device.resolution" >{{res.width}}x{{res.height}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+  </div>
+  <div style="margin: 10px;" >Resolution Camera 1: {{res1}}
     <ion-list>
       <ion-item>
         <ion-select [compareWith]="compareWith1" placeholder="Select Resolution Camera 1"
           interface="action-sheet" (ionChange)="onSelectedResolution1($event)">
-          <ion-select-option value="1">480x360</ion-select-option>
-          <ion-select-option value="2">640x480</ion-select-option>
-          <ion-select-option value="3">800x600</ion-select-option>
-          <ion-select-option value="4">1280x720</ion-select-option>
-          <ion-select-option value="5">1920x1080</ion-select-option>
+          <ion-select-option value="1" *ngFor="let item of cam1" >{{item[0].width}}x{{item[0].height}}</ion-select-option>
         </ion-select>
       </ion-item>
     </ion-list>
-    <!-- <select name="CameraResolution1" style="max-width: 100%; " class="select" [(ngModel)]="selectedResolution1"
-      (change)="onSelectedResolution1(selectedResolution1)">
+    <!-- <select name="CameraResolution1" style="max-width: 100%; " class="select" [
       <option value="1">480x360</option>
       <option value="2">640x480</option>
       <option value="3">800x600</option>
