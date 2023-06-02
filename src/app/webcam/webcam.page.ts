@@ -205,9 +205,7 @@ export class WebcamPage implements OnInit {
   }
   async ngAfterViewInit() {
     this.scan();
-    this.cam1 = this.DeviceCanUse.map((res) => {
-      return res.resolution;
-    })
+    console.log(this.DeviceArray.length);
   }
   Resolution() {
     if (this.selectedResolution1 == "1") {
@@ -375,7 +373,7 @@ export class WebcamPage implements OnInit {
             deviceID,
             deviceName: this.deviceNames[index]
           }));
-        this.selectDevice();
+        this.DeviceArray.push(camera.deviceId);
       }
       )
     }
@@ -515,11 +513,11 @@ export class WebcamPage implements OnInit {
   }
   DeviceArray: string[] = [];
   d: number = 0;
-  selectDevice() {
-    this.devices.forEach((device) => {
-      this.DeviceArray.push(device.deviceID);
-    })
-  }
+  // selectDevice() {
+  //   this.devices.forEach((device) => {
+  //     this.DeviceArray.push(device.deviceID);
+  //   })
+  // }
 
   scan() {
     this.click(this.DeviceArray[this.d]);
@@ -596,6 +594,7 @@ export class WebcamPage implements OnInit {
         else {
           this.i = 0;
           this.DeviceCanUse.push({ deviceId: this.DeviceArray[this.d], resolution: this.ResolutionCanUse });
+          this.ResolutionCanUse = [];
           this.d++;
           if (this.d < this.DeviceArray.length) {
             setTimeout(() => {
@@ -606,10 +605,6 @@ export class WebcamPage implements OnInit {
             this.d = 0;
           }
           console.log(this.DeviceCanUse);
-          this.cam1 = this.DeviceCanUse.map((res) => {
-            return res.resolution;
-          })
-          console.log(this.cam1);
         }
       }
       else {
@@ -649,18 +644,19 @@ export class WebcamPage implements OnInit {
 
   onSelectCamera(ev: any) {
     this.closeCamera1();
-    console.log(ev.target.value);
-    if (ev.target.value == 720 || ev.target.value == 1280) {
+    console.log(ev.target.value[0]);
+    console.log(ev.target.value[1]);
+    if (ev.target.value[0] == 720 || ev.target.value[0] == 1280) {
       this.width1 = 1280;
       this.height1 = 720;
     }
-    if (ev.target.value == 800 || ev.target.value == 600) {
+    if (ev.target.value[0] == 800 || ev.target.value[0] == 600) {
       this.width1 = 800;
       this.height1 = 600;
     }
     console.log(this.width1);
     console.log(this.height1);
-    const stream = this.openCamera(this.deviceIDs, this.width1, this.height1);
+    const stream = this.openCamera(ev.target.value[1], this.width1, this.height1);
     stream.then(stream => {
       this.video1.nativeElement.srcObject = stream;
       this.video1.nativeElement.play();
