@@ -1,10 +1,20 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ModalController } from '@ionic/angular';
 import { FaceDetector, FilesetResolver, Detection } from '@mediapipe/tasks-vision';
+import { FrontCameraComponent } from '../components/front-camera/front-camera.component';
+import { BackCameraComponent } from '../components/back-camera/back-camera.component';
 
-interface ResolutionCanUse {
+export function mydemo() {
+  console.log("this is exportable function in TypeScript. !!");
+  return console.log("this is exportable function in TypeScript. !!");
+}
+
+
+
+
+export interface ResolutionCanUse {
   width: number,
   height: number
 }
@@ -18,9 +28,9 @@ type CamInfo = {
   templateUrl: './webcam.page.html',
   styleUrls: ['./webcam.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, FrontCameraComponent]
 })
-export class WebcamPage implements OnInit {
+export class WebcamPage implements OnInit{
   @ViewChild('video1', { static: false })
   public video1: ElementRef<HTMLVideoElement>;
   @ViewChild('video2', { static: false })
@@ -36,26 +46,24 @@ export class WebcamPage implements OnInit {
   @ViewChild('liveLiew', { static: false })
   public liveView: ElementRef<HTMLDivElement>;
 
-  constructor() { }
+  public res1: string;
+  public res2: string;
+  public testRes: string[] = ['nHD', 'VGA', 'SVGA', 'HD', 'UXGA', 'FHD', 'UHD'];
+  public selectedResolution1: string;
+  public selectedResolution2: string;
 
-  res1: string;
-  res2: string;
-  testRes: string[] = ['nHD', 'VGA', 'SVGA', 'HD', 'UXGA', 'FHD', 'UHD'];
-  selectedResolution1: string;
-  selectedResolution2: string;
-
-  images: {
+  public images: {
     imageW: number,
     imageH: number,
     imageC: string,
     imageT: string
   }[] = [];
 
-  deviceIDsF: string;
-  deviceNamesF: string;
-  deviceIDsB: string;
-  deviceNamesB: string;
-  devices: { deviceID: string, deviceName: string }[] = [
+  public deviceIDsF: string;
+  public deviceNamesF: string;
+  public deviceIDsB: string;
+  public deviceNamesB: string;
+  public devices: { deviceID: string, deviceName: string }[] = [
     // {
     //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
     //   deviceName: "camera2 1, facing front"
@@ -80,39 +88,39 @@ export class WebcamPage implements OnInit {
     //   deviceID: "uygodiughpiduhfgpiuhfdpguh",
     //   deviceName: "camera2 0, facing back"
     // }
-  ]; deviceIDs: string[] = [];
-  deviceNames: string[] = [];
-  selectedValue1: string;
-  selectedValue2: string;
-  compareWith1: any;
-  compareWith2: any;
-  compareWith3: any;
-  compareWith4: any;
-  captures: string[] = [];
-  showResolutionWidth: number[] = [];
-  showResolutionheight: number[] = [];
-  text: string[] = [];
+  ]; public deviceIDs: string[] = [];
+  public deviceNames: string[] = [];
+  public selectedValue1: string;
+  public selectedValue2: string;
+  public compareWith1: any;
+  public compareWith2: any;
+  public compareWith3: any;
+  public compareWith4: any;
+  public captures: string[] = [];
+  public showResolutionWidth: number[] = [];
+  public showResolutionheight: number[] = [];
+  public text: string[] = [];
 
-  width1: number;
-  height1: number;
-  width2: number;
-  height2: number;
+  public width1: number;
+  public height1: number;
+  public width2: number;
+  public height2: number;
 
-  cameraindexfront: number;
-  indexCameraF: number = 10;
-  indexCameraB: number = 10;
-  myFrontCamera: any[] = [];
-  myBackCamera: any[] = [];
-  searchfront: string = "front";
-  searchback: string = "back";
+  public cameraindexfront: number;
+  public indexCameraF: number = 10;
+  public indexCameraB: number = 10;
+  public myFrontCamera: any[] = [];
+  public myBackCamera: any[] = [];
+  public searchfront: string = "front";
+  public searchback: string = "back";
   // dname: string[] = ["camera2 1, facing front",
   //   "camera2 3, facing front",
   //   "camera2 5, facing back",
   //   "camera2 4, facing back",
   //   "camera2 2, facing back",
   //  "camera2 0, facing back"]
-  status: string;
-  quickScan = [
+  public status: string;
+  public quickScan = [
     // {
     //   "label": "4K(UHD)",
     //   "width": 3840,
@@ -157,7 +165,302 @@ export class WebcamPage implements OnInit {
     // }
 
   ];
-  cam1: any[];
+  public cam1: any[];
+  public DeviceCanUse: {
+    deviceId: string,
+    resolution: any[]
+  }[] = []
+  public ResolutionCanUse: ResolutionCanUse[] = [];
+
+  public DeviceArray: string[] = [];
+  public d: number = 0;
+  public stream: any;
+  public i: number = 0;
+
+
+
+
+
+
+
+  constructor(private modalCtrl: ModalController) {
+
+  }
+
+  async ngOnInit() {
+    this.Resolution();
+    this.checkCamera();
+    // this.setCamera();
+  }
+  async ngAfterViewInit() {
+    this.scan();
+    console.log(this.DeviceArray.length);
+  }
+
+  async checkCamera() {
+    const cameras = await this.getConnectedDevices('videoinput');
+    if (cameras.length === 0) {
+      console.log('No cameras found');
+    } else {
+      cameras.forEach((camera) => {
+        const CameraName = camera.label.toLowerCase();
+        if (CameraName.indexOf(this.searchfront) !== -1) {
+          const myArray = CameraName.split(",");
+          const cameraindex = myArray[0].split(" ");
+          this.cameraindexfront = Number.parseInt(cameraindex[1]);
+          if (this.cameraindexfront < this.indexCameraF) {
+            this.indexCameraF = this.cameraindexfront;
+            console.log(this.indexCameraF);
+            this.deviceIDsF = camera.deviceId;
+            this.deviceNamesF = camera.label;
+          }
+        }
+        if (CameraName.indexOf(this.searchback) !== -1) {
+          const myArray = CameraName.split(",");
+          const cameraindex = myArray[0].split(" ");
+          this.cameraindexfront = Number.parseInt(cameraindex[1]);
+          if (this.cameraindexfront < this.indexCameraB) {
+            this.indexCameraB = this.cameraindexfront;
+            console.log(this.indexCameraB);
+            this.deviceIDsB = camera.deviceId;
+            this.deviceNamesB = camera.label;
+          }
+        }
+        this.deviceIDs.push(camera.deviceId);
+        this.deviceNames.push(camera.label);
+        this.devices = this.deviceIDs.map((deviceID, index) => (
+          {
+            deviceID,
+            deviceName: this.deviceNames[index]
+          }));
+        this.DeviceArray.push(camera.deviceId);
+      }
+      )
+    }
+  }
+
+  scan() {
+    if (this.i < this.quickScan.length) {
+      this.gum(this.quickScan[this.i], this.DeviceArray[this.d]);
+      this.displayVideoDimensions();
+    }
+  }
+  gum(candidate: any, device: any) {
+    console.log("trying " + candidate.label + " on " + device);
+    console.log("trying " + candidate.width + " x " + candidate.height);
+
+    const videoElement = this.video1.nativeElement;
+    const stream = videoElement.srcObject as MediaStream;
+
+    if (stream) {
+      const tracks = stream.getTracks();
+      tracks.forEach((track) => track.stop());
+      videoElement.srcObject = null;
+    }
+
+    //create constraints object
+    let constraints = {
+      video: {
+        'deviceId': { 'exact': device },
+        'width': { 'min': 640, 'ideal': candidate.width, 'max': 3840 },
+        'height': { 'min': 360, 'ideal': candidate.height, 'max': 2160 }
+      }
+    };
+
+    setTimeout(() => {
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then((Stream) => {
+          this.stream = Stream;
+          this.video1.nativeElement.srcObject = Stream;
+          this.video1.nativeElement.play()
+        })
+        .catch(error => {
+          console.error('Error accessing media devices.', error);
+          this.status = "fail: " + error;
+          console.log(this.status);
+          this.i++
+        });
+    },
+      (this.stream ? 200 : 0));  //official examples had this at 200
+
+  }
+  displayVideoDimensions() {
+    console.log('creating...');
+    if (!this.video1.nativeElement.videoWidth) {
+      setTimeout(() => {
+        this.displayVideoDimensions();
+      }, 500);
+    }
+    console.log(this.video1.nativeElement.videoWidth, this.video1.nativeElement.videoHeight);
+    console.log(this.quickScan[this.i].width, this.quickScan[this.i].height);
+    if (this.video1.nativeElement.videoWidth * this.video1.nativeElement.videoHeight > 0) {
+      if (this.quickScan[this.i].width + "x" + this.quickScan[this.i].height === this.video1.nativeElement.videoWidth + "x" + this.video1.nativeElement.videoHeight
+        || this.quickScan[this.i].width + "x" + this.quickScan[this.i].height === this.video1.nativeElement.videoHeight + "x" + this.video1.nativeElement.videoWidth) {
+        this.status = "pass";
+        this.ResolutionCanUse.push({ width: this.quickScan[this.i].width, height: this.quickScan[this.i].height });
+        console.log(this.ResolutionCanUse);
+        this.i++;
+        if (this.i < this.quickScan.length) {
+          setTimeout(() => {
+            this.scan();
+          }, 500);
+        }
+        else {
+          this.i = 0;
+          this.DeviceCanUse.push({ deviceId: this.DeviceArray[this.d], resolution: this.ResolutionCanUse });
+          this.ResolutionCanUse = [];
+          this.d++;
+          if (this.d < this.DeviceArray.length) {
+            setTimeout(() => {
+              this.scan();
+            }, 500);
+          }
+          else {
+            this.d = 0;
+          }
+          console.log(this.DeviceCanUse);
+        }
+      }
+      else {
+        this.status = "fail: mismatch";
+        this.i++;
+        if (this.i < this.quickScan.length) {
+          setTimeout(() => {
+            this.scan();
+          }, 500);
+        }
+        else {
+          this.i = 0;
+          this.devices = this.deviceIDs.map((deviceID, index) => (
+            {
+              deviceID,
+              deviceName: this.deviceNames[index]
+            }));
+          this.d++;
+          if (this.d < this.DeviceArray.length) {
+            setTimeout(() => {
+              this.scan();
+            }, 500);
+          } else {
+            this.d = 0;
+          }
+        }
+      }
+      console.log(this.status);
+    }
+  }
+
+  async openModalFrontCamera() {
+    const modal = await this.modalCtrl.create({
+      component: FrontCameraComponent,
+    });
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm') {
+      // this.message = `Hello, ${data}!`;
+    }
+  }
+  async openModalBackCamera() {
+    const modal = await this.modalCtrl.create({
+      component: BackCameraComponent,
+    });
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm') {
+      // this.message = `Hello, ${data}!`;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   frontCamera(value: string) {
     this.closeCamera1();
     console.log(value);
@@ -195,18 +498,7 @@ export class WebcamPage implements OnInit {
     }
   }
 
-  async ngOnInit() {
-    // this.getmediaDevices();
-    this.Resolution();
-    this.checkCamera();
-    // this.setCamera();
 
-    // this.initializefaceDetector();
-  }
-  async ngAfterViewInit() {
-    this.scan();
-    console.log(this.DeviceArray.length);
-  }
   Resolution() {
     if (this.selectedResolution1 == "1") {
       this.res1 = this.testRes[0];
@@ -337,47 +629,7 @@ export class WebcamPage implements OnInit {
     const devices = await navigator.mediaDevices.enumerateDevices();
     return devices.filter(device => device.kind === type)
   }
-  async checkCamera() {
-    const cameras = await this.getConnectedDevices('videoinput');
-    if (cameras.length === 0) {
-      console.log('No cameras found');
-    } else {
-      cameras.forEach((camera) => {
-        const CameraName = camera.label.toLowerCase();
-        if (CameraName.indexOf(this.searchfront) !== -1) {
-          const myArray = CameraName.split(",");
-          const cameraindex = myArray[0].split(" ");
-          this.cameraindexfront = Number.parseInt(cameraindex[1]);
-          if (this.cameraindexfront < this.indexCameraF) {
-            this.indexCameraF = this.cameraindexfront;
-            console.log(this.indexCameraF);
-            this.deviceIDsF = camera.deviceId;
-            this.deviceNamesF = camera.label;
-          }
-        }
-        if (CameraName.indexOf(this.searchback) !== -1) {
-          const myArray = CameraName.split(",");
-          const cameraindex = myArray[0].split(" ");
-          this.cameraindexfront = Number.parseInt(cameraindex[1]);
-          if (this.cameraindexfront < this.indexCameraB) {
-            this.indexCameraB = this.cameraindexfront;
-            console.log(this.indexCameraB);
-            this.deviceIDsB = camera.deviceId;
-            this.deviceNamesB = camera.label;
-          }
-        }
-        this.deviceIDs.push(camera.deviceId);
-        this.deviceNames.push(camera.label);
-        this.devices = this.deviceIDs.map((deviceID, index) => (
-          {
-            deviceID,
-            deviceName: this.deviceNames[index]
-          }));
-        this.DeviceArray.push(camera.deviceId);
-      }
-      )
-    }
-  }
+
   async openCamera(cameraId: any, minWidth: any, minHeight: any) {
     const constraints = {
       'video': {
@@ -511,136 +763,6 @@ export class WebcamPage implements OnInit {
       console.error('Canvas context is null.');
     }
   }
-  DeviceArray: string[] = [];
-  d: number = 0;
-  // selectDevice() {
-  //   this.devices.forEach((device) => {
-  //     this.DeviceArray.push(device.deviceID);
-  //   })
-  // }
-
-  scan() {
-    this.click(this.DeviceArray[this.d]);
-  }
-
-  stream: any;
-  i: number = 0;
-  click(device: string) {
-    if (this.i < this.quickScan.length) {
-      this.gum(this.quickScan[this.i], device);
-      this.displayVideoDimensions();
-    }
-  }
-  gum(candidate: any, device: any) {
-    console.log("trying " + candidate.label + " on " + device);
-    console.log("trying " + candidate.width + " x " + candidate.height);
-
-    const videoElement = this.video1.nativeElement;
-    const stream = videoElement.srcObject as MediaStream;
-
-    if (stream) {
-      const tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
-      videoElement.srcObject = null;
-    }
-
-    //create constraints object
-    let constraints = {
-      video: {
-        'deviceId': { 'exact': device },
-        'width': { 'min': 640, 'ideal': candidate.width, 'max': 3840 },
-        'height': { 'min': 360, 'ideal': candidate.height, 'max': 2160 }
-      }
-    };
-
-    setTimeout(() => {
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then((Stream) => {
-          this.stream = Stream;
-          this.video1.nativeElement.srcObject = Stream;
-          this.video1.nativeElement.play()
-        })
-        .catch(error => {
-          console.error('Error accessing media devices.', error);
-          this.status = "fail: " + error;
-          console.log(this.status);
-          this.i++
-        });
-    },
-      (this.stream ? 200 : 0));  //official examples had this at 200
-
-  }
-  displayVideoDimensions() {
-    console.log('creating...');
-    if (!this.video1.nativeElement.videoWidth) {
-      setTimeout(() => {
-        this.displayVideoDimensions();
-      }, 500);
-    }
-    console.log(this.video1.nativeElement.videoWidth, this.video1.nativeElement.videoHeight);
-    console.log(this.quickScan[this.i].width, this.quickScan[this.i].height);
-    if (this.video1.nativeElement.videoWidth * this.video1.nativeElement.videoHeight > 0) {
-      if (this.quickScan[this.i].width + "x" + this.quickScan[this.i].height === this.video1.nativeElement.videoWidth + "x" + this.video1.nativeElement.videoHeight
-        || this.quickScan[this.i].width + "x" + this.quickScan[this.i].height === this.video1.nativeElement.videoHeight + "x" + this.video1.nativeElement.videoWidth) {
-        this.status = "pass";
-        this.ResolutionCanUse.push({ width: this.quickScan[this.i].width, height: this.quickScan[this.i].height });
-        console.log(this.ResolutionCanUse);
-        this.i++;
-        if (this.i < this.quickScan.length) {
-          setTimeout(() => {
-            this.scan();
-          }, 500);
-        }
-        else {
-          this.i = 0;
-          this.DeviceCanUse.push({ deviceId: this.DeviceArray[this.d], resolution: this.ResolutionCanUse });
-          this.ResolutionCanUse = [];
-          this.d++;
-          if (this.d < this.DeviceArray.length) {
-            setTimeout(() => {
-              this.scan();
-            }, 500);
-          }
-          else {
-            this.d = 0;
-          }
-          console.log(this.DeviceCanUse);
-        }
-      }
-      else {
-        this.status = "fail: mismatch";
-        this.i++;
-        if (this.i < this.quickScan.length) {
-          setTimeout(() => {
-            this.scan();
-          }, 500);
-        }
-        else {
-          this.i = 0;
-          this.devices = this.deviceIDs.map((deviceID, index) => (
-            {
-              deviceID,
-              deviceName: this.deviceNames[index]
-            }));
-          this.d++;
-          if (this.d < this.DeviceArray.length) {
-            setTimeout(() => {
-              this.scan();
-            }, 500);
-          } else {
-            this.d = 0;
-          }
-        }
-      }
-      console.log(this.status);
-    }
-  }
-
-  DeviceCanUse: {
-    deviceId: string,
-    resolution: any[]
-  }[] = []
-  public ResolutionCanUse: ResolutionCanUse[] = [];
 
   onSelectCamera(ev: any) {
     this.closeCamera1();
@@ -665,5 +787,8 @@ export class WebcamPage implements OnInit {
         console.error('Error accessing media devices.', error);
       });
   }
+
+
+
 }
 

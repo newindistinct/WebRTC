@@ -11,9 +11,10 @@
   <div #liveLiew style="margin: 10px;width: 50%;">
     <video #video2 id="video" width="100%"></video>
   </div>
+  <!-- <ion-button (click)="openModalFrontCamera()" expand="block" fill="clear" shape="round">openModalFrontCamera</ion-button>
   <ion-button (click)="frontCamera(deviceIDsF)" expand="block" fill="clear" shape="round">front</ion-button>
   <ion-button (click)="backCamera(deviceIDsB)" expand="block" fill="clear" shape="round">back</ion-button>
-  <ion-button (click)="scan()" expand="block" fill="clear" shape="round">scan</ion-button>
+  <ion-button (click)="scan()" expand="block" fill="clear" shape="round">scan</ion-button> -->
   <div style="margin: 10px;" *ngFor="let device of DeviceCanUse">Resolution Camera : {{device.deviceId}}
     <ion-list>
       <ion-item>

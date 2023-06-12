@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <!-- <ion-button color="medium" (click)="cancel()">Cancel</ion-button> -->
+    </ion-buttons>
+    <ion-title>Welcome</ion-title>
+    <ion-buttons slot="end">
+      <!-- <ion-button (click)="confirm()" [strong]="true">Confirm</ion-button> -->
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div>
+    <video #video id="video" width="100%"> </video>
+  </div>
+  <!-- <div style="margin: 10px;" *ngFor="let device of DeviceCanUse">Resolution Camera : {{device.deviceId}}
+    <ion-list>
+      <ion-item>
+        <ion-select [compareWith]="compareWith1" placeholder="Select Resolution Camera 1"
+          interface="action-sheet" (ionChange)="onSelectCamera($event)">
+          <ion-select-option [value]="[res.width,device.deviceId]" *ngFor="let res of device.resolution" >{{res.width}}x{{res.height}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+  </div> -->
+</ion-content>
